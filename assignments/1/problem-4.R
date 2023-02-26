@@ -73,8 +73,24 @@ anova_block_and_nitrogen <- function(dataset){
   return (anova(model))
 }
 
-anova_block_and_nitrogen(npk)
+# anova_block_and_nitrogen(npk)
 
+# Problem 4.4
+anova_all <- function(dataset){
+    # dataset$pair <- as.integer(dataset$block) * (as.numeric(dataset[, col]) -1)
+    
+  for (col2 in c("block", "N", "P", "K")){
+    dataset[, col2] = as.factor(dataset[, col2])
+  }
+  model_n = aov(lm(yield~N*block+P+K, data=dataset))
+  model_p = aov(lm(yield~P*block+N+K, data=dataset))
+  model_k = aov(lm(yield~K*block+N+P, data=dataset))
+  model_no_interaction = aov(lm(yield~block+N+P+K, data=dataset))
+  model_without_block = aov(lm(yield~N+P+K, data=dataset))
+  print(summary(model_no_interaction))
+}
+
+anova_all(npk)
 
 
 
