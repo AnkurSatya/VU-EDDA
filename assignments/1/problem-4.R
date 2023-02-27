@@ -58,10 +58,10 @@ plot_yield <- function(){
   
   jpeg("avg_yield.jpg")
   barplot(c(avg_yield_with_nitrogen, avg_yield_wo_nitrogen), names.arg = c("With Nitrogen", "Without Nitrogen"), 
-          ylab="Average yield per block")
+          ylab="Average yield per block", ylim=c(0,120))
 }
 
-plot_yield()
+# plot_yield()
 
 
 # Problem 4.3
@@ -69,16 +69,14 @@ anova_block_and_nitrogen <- function(dataset){
   dataset$block = as.factor(dataset$block)
   dataset$N = as.factor(dataset$N)
   
-  model = lm(yield~block*N, data=dataset)
+  model = lm(yield~block+N, data=dataset)
   return (anova(model))
 }
 
-# anova_block_and_nitrogen(npk)
+anova_block_and_nitrogen(npk)
 
 # Problem 4.4
 anova_all <- function(dataset){
-    # dataset$pair <- as.integer(dataset$block) * (as.numeric(dataset[, col]) -1)
-    
   for (col2 in c("block", "N", "P", "K")){
     dataset[, col2] = as.factor(dataset[, col2])
   }
@@ -87,10 +85,16 @@ anova_all <- function(dataset){
   model_k = aov(lm(yield~K*block+N+P, data=dataset))
   model_no_interaction = aov(lm(yield~block+N+P+K, data=dataset))
   model_without_block = aov(lm(yield~N+P+K, data=dataset))
-  print(summary(model_no_interaction))
+  
+  for (model in list(model_n, model_p, model_k, model_no_interaction, 
+                 model_without_block)){
+    print(summary(model))
+  }
 }
 
-anova_all(npk)
+# anova_all(npk)
+
+
 
 
 
