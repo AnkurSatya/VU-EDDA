@@ -50,11 +50,55 @@ p3a_logit <- function(df)
                   data=mod_df, family=binomial())
   
   odds = or_glm(data=df, model=fit_model, incr=list(Age=5))
+  print(anova(fit_model, test="Chisq"))
+  print("_______________")
   print(odds)
 }
 
+p3b_testing_model <- function(df)
+{
+  mod_df <- dummy_cols(df, select_columns = c('Sex', 'PClass'), 
+                       remove_selected_columns=TRUE)
+  
+  fit_model = glm(formula=Survived~Age*Sex_female+Age*Sex_male+
+                    Age*PClass_1st+Age*PClass_2nd+Age*PClass_3rd, 
+                  data=mod_df, family=binomial())
+  
+  print(anova(fit_model, test="Chisq"))
+}
+
+p3b_final_model <- function(df)
+{
+  mod_df <- dummy_cols(df, select_columns = c('Sex', 'PClass'), 
+                       remove_selected_columns=TRUE)
+  
+  fit_model = glm(formula=Survived~Sex_female+Sex_male+PClass_1st+
+                    PClass_2nd+PClass_3rd+Age:Sex_female+Age:Sex_male, 
+                  data=mod_df, family=binomial())
+  # print(anova(fit_model, test="Chisq"))
+  
+  ## Creating dataset for prediction
+  
+  class = rep(c("1st", "2nd", "3rd"), times=2)
+  sex = rep(c("female", "male"), each=3)
+  age = rep(c(55), times=6)
+  test_data = data.frame(class, sex, age)
+  names(test_data) = c("PClass", "Sex", "Age")
+
+  mod_test_data = dummy_cols(test_data, select_columns = c("Sex", "PClass"),
+                             remove_selected_columns = TRUE)
+
+  predictions = predict(fit_model, mod_test_data, type="response",
+                        interval="predict")
+  mod_test_data$probs = predictions
+  print(mod_test_data)
+}
+  
 df = read.csv("/home/ankur/Ankur/CLS/Y2/P4/EDDA/assignments/2/titanic.txt",
               header=TRUE, sep="\t")
 
 # graph_plot(df)
 # p3a_logit(df)
+# print("____________________")
+# p3b_testing_model(df)
+p3b_final_model(df)
