@@ -50,16 +50,19 @@ graph_plot <- function (df)
 
 p3a_logit <- function(df)
 {
+  # Step1: One-hot encoding of categorical predictors
   mod_df <- dummy_cols(df, select_columns = c('Sex', 'PClass'), 
                        remove_selected_columns=TRUE)
   
+  # Step2: Fitting a logistic regression model
   fit_model = glm(formula=Survived~Age+Sex_female+Sex_male+PClass_1st+PClass_2nd+PClass_3rd,
                   data=mod_df, family=binomial())
   
+  # Step3: Evaluating odds
   odds = or_glm(data=df, model=fit_model, incr=list(Age=10))
   print(anova(fit_model, test="Chisq"))
-  print("_______________")
-  print(odds)
+  # print("_______________")
+  # print(odds)
 }
 
 p3b_testing_model <- function(df)
@@ -82,7 +85,7 @@ p3b_final_model <- function(df)
   fit_model = glm(formula=Survived~Sex_female+Sex_male+PClass_1st+
                     PClass_2nd+PClass_3rd+Age:Sex_female+Age:Sex_male, 
                   data=mod_df, family=binomial())
-  # print(anova(fit_model, test="Chisq"))
+  print(anova(fit_model, test="Chisq"))
   
   ## Creating dataset for prediction
   
@@ -97,7 +100,7 @@ p3b_final_model <- function(df)
 
   predictions = predict(fit_model, mod_test_data, type="response",
                         interval="predict")
-  mod_test_data$probs = predictions
+  mod_test_data$probs = round(predictions, 3)
   print(mod_test_data)
 }
 
@@ -118,6 +121,13 @@ p3d <- function(df)
   print("Chi Square test for Sex and Survived")
   print(chisq.test(sex_con_table))
   
+  # Fisher test
+  print("Fisher test for PClass and Survived")
+  print(fisher.test(pclass_con_table))
+  
+  print("Fisher test for Sex and Survived")
+  print(fisher.test(sex_con_table))
+  
   
 }
   
@@ -125,9 +135,9 @@ df = read.csv("/home/ankur/Ankur/CLS/Y2/P4/EDDA/assignments/2/titanic.txt",
               header=TRUE, sep="\t")
 
 # graph_plot(df)
-p3a_logit(df)
+# p3a_logit(df)
 # print("____________________")
 # p3b_testing_model(df)
 # p3b_final_model(df)
-# p3d(df)
+p3d(df)
 
